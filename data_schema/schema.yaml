@@ -1,0 +1,100 @@
+# Skema ini mendefinisikan struktur data yang diharapkan untuk proyek Bank Marketing.
+# Ini akan digunakan oleh komponen Data Validation untuk memastikan konsistensi data.
+
+columns:
+  id: int64
+  age: int64
+  job: object
+  marital: object
+  education: object
+  default: object
+  balance: int64
+  housing: object
+  loan: object
+  contact: object
+  day: int64
+  month: object
+  duration: int64
+  campaign: int64
+  pdays: int64
+  previous: int64
+  poutcome: object
+  y: int64
+
+numerical_columns:
+  - age
+  - balance
+  - day
+  - duration
+  - campaign
+  - pdays
+  - previous
+
+categorical_columns:
+  - job
+  - marital
+  - education
+  - default
+  - housing
+  - loan
+  - contact
+  - month
+  - poutcome
+
+target_column: y
+
+# Mendefinisikan nilai-nilai yang valid untuk setiap fitur kategorikal
+domain_value:
+  job:
+    - "admin."
+    - "unknown"
+    - "unemployed"
+    - "management"
+    - "housemaid"
+    - "entrepreneur"
+    - "student"
+    - "blue-collar"
+    - "self-employed"
+    - "retired"
+    - "technician"
+    - "services"
+  marital:
+    - "married"
+    - "divorced"
+    - "single"
+  education:
+    - "unknown"
+    - "secondary"
+    - "primary"
+    - "tertiary"
+  default:
+    - "yes"
+    - "no"
+  housing:
+    - "yes"
+    - "no"
+  loan:
+    - "yes"
+    - "no"
+  contact:
+    - "unknown"
+    - "telephone"
+    - "cellular"
+  month:
+    - "jan"
+    - "feb"
+    - "mar"
+    - "apr"
+    - "may"
+    - "jun"
+    - "jul"
+    - "aug"
+    - "sep"
+    - "oct"
+    - "nov"
+    - "dec"
+  poutcome:
+    - "unknown"
+    - "other"
+    - "failure"
+    - "success"

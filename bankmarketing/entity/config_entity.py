@@ -3,7 +3,7 @@ from bankmarketing.logging.logger import logging
 
 from datetime import datetime
 import os
-
+import sys
 from bankmarketing.constant import training_pipeline
 
 
@@ -37,4 +37,49 @@ class DataIngestionConfig():
         self.train_test_split_ratio: float = training_pipeline.DATA_INGESTION_TRAIN_TEST_SPLIT_RATIO
         self.collection_name: str = training_pipeline.DATA_INGESTION_COLLECTION_NAME
         self.database_name: str = training_pipeline.DATA_INGESTION_DATABASE_NAME
-        
+
+# Di dalam file bankmarketing/entity/config_entity.py
+
+class DataValidationConfig:
+    def __init__(self, training_pipeline_config: TrainingPipelineConfig):
+        try:
+            # Direktori utama untuk semua output dari tahap validasi
+            self.data_validation_dir = os.path.join(
+                training_pipeline_config.artifact_dir, training_pipeline.DATA_VALIDATION_DIR_NAME
+            )
+
+            # Direktori untuk menyimpan data yang dianggap TIDAK VALID
+            self.invalid_data_dir = os.path.join(
+                self.data_validation_dir, training_pipeline.DATA_VALIDATION_INVALID_DIR
+            )
+
+            # --- PERBAIKAN DI DUA BARIS DI BAWAH INI ---
+            # Simpan file valid langsung di dalam folder 'data_validation'
+            self.valid_train_file_path = os.path.join(
+                self.data_validation_dir, training_pipeline.TRAIN_FILE_NAME
+            )
+            self.valid_test_file_path = os.path.join(
+                self.data_validation_dir, training_pipeline.TEST_FILE_NAME
+            )
+            # --- AKHIR PERBAIKAN ---
+
+            # ... sisa kode tetap sama ...
+            self.invalid_train_file_path = os.path.join(
+                self.invalid_data_dir, training_pipeline.TRAIN_FILE_NAME
+            )
+            self.invalid_test_file_path = os.path.join(
+                self.invalid_data_dir, training_pipeline.TEST_FILE_NAME
+            )
+            
+            self.drift_report_file_path = os.path.join(
+                self.data_validation_dir,
+                training_pipeline.DATA_VALIDATION_DRIFT_REPORT_DIR,
+                training_pipeline.DATA_VALIDATION_DRIFT_REPORT_FILE_NAME,
+            )
+
+            self.schema_file_path = training_pipeline.SCHEMA_FILE_PATH
+
+            self.drift_report_threshold = training_pipeline.DRIFT_REPORT_THRESHOLD
+
+        except Exception as e:
+            raise BankMarketingException(e, sys)
