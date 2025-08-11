@@ -29,7 +29,7 @@ def get_requirements()->List[str]:
     return requirement_lst
     
 setup(
-    name = "NetworkSecurity",
+    name = "BankMarketing",
     version= "0.0.1",
     author = "Farhan kamil hermansyah",
     author_email="farmiljobs@gmail.com",

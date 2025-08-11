@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: BankMarketing
+Version: 0.0.1
+Author: Farhan kamil hermansyah
+Author-email: farmiljobs@gmail.com
+Requires-Dist: pandas
+Requires-Dist: python-dotenv
+Requires-Dist: numpy
+Requires-Dist: pymongo
+Requires-Dist: certifi
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-dist

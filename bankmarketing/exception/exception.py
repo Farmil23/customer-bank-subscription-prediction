@@ -1,7 +1,7 @@
 import sys
-from networksecurity.logging import logger
+from bankmarketing.logging import logger
 
-class NetworkSecurityException(Exception):
+class BankMarketingException(Exception):
     def __init__(self,error_message,error_details:sys):
         self.error_message = error_message
         _,_,exc_tb = error_details.exc_info()
@@ -18,11 +18,10 @@ class NetworkSecurityException(Exception):
 ## TESTING MODE
 if __name__ == '__main__':
     try:
-    logger.logging.info("enter the try block")
-    
-    a = 1/0
-    print("This will not be print", a)
-except Exception as e:
-    raise NetworkSecurityException(e, sys)
-    
-"""     
+        logger.logging.info("enter the try block")
+        a = 1/0
+        print("This will not be print", a)
+        
+    except Exception as e:
+        raise BankMarketingException(e, sys)
+"""
