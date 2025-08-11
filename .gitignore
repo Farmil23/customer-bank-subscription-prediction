@@ -1,2 +1,4 @@
 venv
 .env
+bank-data/raw_data.csv
+__pycache__
