@@ -1,0 +1,6 @@
+[ 2025-08-11 12:36:55,937 ] 19 root - INFO - Berhasil terhubung ke MongoDB._
+[ 2025-08-11 12:36:57,254 ] 20 root - INFO - Jumlah data SEBELUM proses: 750000
+[ 2025-08-11 12:36:57,255 ] 40 root - INFO - 
+Menjalankan proses sampling dan replace di MongoDB...
+[ 2025-08-11 12:37:03,062 ] 43 root - INFO - Proses berhasil!
+[ 2025-08-11 12:37:04,513 ] 51 root - INFO - Jumlah data SESUDAH proses: 30000
