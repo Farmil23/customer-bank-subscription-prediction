@@ -20,3 +20,25 @@ class DataTransformationArtifact:
     transformed_train_file_path: str
     transformed_test_file_path: str
 
+@dataclass
+class ModelTrainerArtifact:
+    trained_model_file_path: str
+    train_metric_artifact: float
+    test_metric_artifact: float
+    
+
+@dataclass
+class ModelEvaluationArtifact:
+    model_evaluation_file_path: str
+    
+@dataclass
+class ModelTrainerArtifact:
+    trained_model_file_path: str
+    train_f1: float
+    test_f1: float
+    train_accuracy: float
+    test_accuracy: float
+    train_precision: float
+    test_precision: float
+    train_recall: float
+    test_recall: float

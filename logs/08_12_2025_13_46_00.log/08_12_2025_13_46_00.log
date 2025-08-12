@@ -1,0 +1,35 @@
+[ 2025-08-12 13:46:25,113 ] 68 root - INFO - Melakukan train-test split pada dataframe.
+[ 2025-08-12 13:46:25,131 ] 77 root - INFO - Membuang kolom ['id', 'duration'] dari train set dan test set.
+[ 2025-08-12 13:46:25,148 ] 83 root - INFO - Mengekspor file train dan test yang sudah bersih.
+[ 2025-08-12 13:46:25,599 ] 105 root - INFO - Memulai komponen Data Validation.
+[ 2025-08-12 13:46:25,773 ] 110 root - INFO - Memulai validasi skema data.
+[ 2025-08-12 13:46:25,773 ] 25 root - INFO - Required number of columns: 16
+[ 2025-08-12 13:46:25,773 ] 26 root - INFO - Dataframe has columns: 16
+[ 2025-08-12 13:46:25,775 ] 25 root - INFO - Required number of columns: 16
+[ 2025-08-12 13:46:25,775 ] 26 root - INFO - Dataframe has columns: 16
+[ 2025-08-12 13:46:25,777 ] 130 root - INFO - Validasi skema berhasil.
+[ 2025-08-12 13:46:25,777 ] 133 root - INFO - Memulai deteksi data drift.
+[ 2025-08-12 13:46:25,838 ] 138 root - INFO - Tidak ada data drift yang signifikan.
+[ 2025-08-12 13:46:26,045 ] 155 root - INFO - Berhasil menyalin file yang sudah divalidasi ke direktori 'validated'.
+[ 2025-08-12 13:46:26,046 ] 168 root - INFO - Data validation artifact berhasil dibuat: DataValidationArtifact(validation_status=True, valid_train_file_path='Artifacts\\08_12_2025_13_13_01\\data_validation\\train.csv', valid_test_file_path='Artifacts\\08_12_2025_13_13_01\\data_validation\\test.csv', invalid_train_file_path=None, invalid_test_file_path=None, drift_report_file_path='Artifacts\\08_12_2025_13_13_01\\data_validation\\drift_report\\report.yaml')
+[ 2025-08-12 13:46:26,046 ] 63 root - INFO - >>> Memulai Tahap Data Transformation <<<
+[ 2025-08-12 13:46:26,054 ] 66 root - INFO - Memulai proses transformasi data.
+[ 2025-08-12 13:46:26,199 ] 71 root - INFO - Memulai Feature Engineering.
+[ 2025-08-12 13:46:26,241 ] 81 root - INFO - Feature Engineering selesai.
+[ 2025-08-12 13:46:26,241 ] 51 root - INFO - Kolom numerik: ['age', 'balance', 'day', 'campaign', 'pdays', 'previous']
+[ 2025-08-12 13:46:26,241 ] 52 root - INFO - Kolom kategorikal: ['job', 'marital', 'education', 'default', 'housing', 'loan', 'contact', 'month', 'poutcome']
+[ 2025-08-12 13:46:26,248 ] 94 root - INFO - Menerapkan objek preprocessor pada data training dan testing.
+[ 2025-08-12 13:46:26,428 ] 98 root - INFO - Menerapkan SMOTETomek untuk menyeimbangkan HANYA data training.
+[ 2025-08-12 13:46:35,337 ] 41 root - INFO - Enter the save_object method of mainutils class
+[ 2025-08-12 13:46:35,358 ] 46 root - INFO - Exited the save_object method of main utils class
+[ 2025-08-12 13:46:35,378 ] 117 root - INFO - Menyimpan objek preprocessor dan data yang sudah ditransformasi.
+[ 2025-08-12 13:46:35,378 ] 124 root - INFO - Data transformation artifact: DataTransformationArtifact(transformed_object_file_path='Artifacts\\08_12_2025_13_13_01\\data_transformation\\transformed_object\\preprocessor.pkl', transformed_train_file_path='Artifacts\\08_12_2025_13_13_01\\data_transformation\\transformed_data\\train.npy', transformed_test_file_path='Artifacts\\08_12_2025_13_13_01\\data_transformation\\transformed_data\\test.npy')
+[ 2025-08-12 13:46:35,385 ] 77 root - INFO - >>> Tahap Data Transformation Selesai <<<
+[ 2025-08-12 13:46:35,386 ] 30 root - INFO - Memulai komponen Model Trainer dengan Hyperparameter Tuning.
+[ 2025-08-12 13:46:35,429 ] 67 root - INFO - --- Memulai GridSearchCV untuk: Random Forest ---
+[ 2025-08-12 13:54:25,072 ] 77 root - INFO -   Hasil F1 Score untuk Random Forest: 0.4209 dengan parameter {'criterion': 'gini', 'max_depth': 12, 'min_samples_leaf': 15, 'n_estimators': 200}
+[ 2025-08-12 13:54:25,072 ] 67 root - INFO - --- Memulai GridSearchCV untuk: XGBoost ---
+[ 2025-08-12 13:55:02,098 ] 77 root - INFO -   Hasil F1 Score untuk XGBoost: 0.4211 dengan parameter {'learning_rate': 0.1, 'max_depth': 7, 'n_estimators': 200}
+[ 2025-08-12 13:55:02,098 ] 67 root - INFO - --- Memulai GridSearchCV untuk: Logistic Regression ---
+[ 2025-08-12 13:55:30,867 ] 77 root - INFO -   Hasil F1 Score untuk Logistic Regression: 0.3598 dengan parameter {'C': 1, 'penalty': 'l1', 'solver': 'liblinear'}
+[ 2025-08-12 13:56:06,736 ] 89 root - INFO - Model terbaik setelah semua tuning: XGBoost dengan F1 Score: 0.4211

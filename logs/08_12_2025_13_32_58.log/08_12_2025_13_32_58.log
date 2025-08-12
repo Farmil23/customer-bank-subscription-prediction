@@ -1,0 +1,32 @@
+[ 2025-08-12 13:33:25,761 ] 68 root - INFO - Melakukan train-test split pada dataframe.
+[ 2025-08-12 13:33:25,778 ] 77 root - INFO - Membuang kolom ['id', 'duration'] dari train set dan test set.
+[ 2025-08-12 13:33:25,786 ] 83 root - INFO - Mengekspor file train dan test yang sudah bersih.
+[ 2025-08-12 13:33:26,157 ] 105 root - INFO - Memulai komponen Data Validation.
+[ 2025-08-12 13:33:26,298 ] 110 root - INFO - Memulai validasi skema data.
+[ 2025-08-12 13:33:26,298 ] 25 root - INFO - Required number of columns: 16
+[ 2025-08-12 13:33:26,298 ] 26 root - INFO - Dataframe has columns: 16
+[ 2025-08-12 13:33:26,298 ] 25 root - INFO - Required number of columns: 16
+[ 2025-08-12 13:33:26,298 ] 26 root - INFO - Dataframe has columns: 16
+[ 2025-08-12 13:33:26,298 ] 130 root - INFO - Validasi skema berhasil.
+[ 2025-08-12 13:33:26,298 ] 133 root - INFO - Memulai deteksi data drift.
+[ 2025-08-12 13:33:26,373 ] 138 root - INFO - Tidak ada data drift yang signifikan.
+[ 2025-08-12 13:33:26,618 ] 155 root - INFO - Berhasil menyalin file yang sudah divalidasi ke direktori 'validated'.
+[ 2025-08-12 13:33:26,618 ] 168 root - INFO - Data validation artifact berhasil dibuat: DataValidationArtifact(validation_status=True, valid_train_file_path='Artifacts\\08_12_2025_13_13_59\\data_validation\\train.csv', valid_test_file_path='Artifacts\\08_12_2025_13_13_59\\data_validation\\test.csv', invalid_train_file_path=None, invalid_test_file_path=None, drift_report_file_path='Artifacts\\08_12_2025_13_13_59\\data_validation\\drift_report\\report.yaml')
+[ 2025-08-12 13:33:26,618 ] 63 root - INFO - >>> Memulai Tahap Data Transformation <<<
+[ 2025-08-12 13:33:26,635 ] 66 root - INFO - Memulai proses transformasi data.
+[ 2025-08-12 13:33:26,775 ] 71 root - INFO - Memulai Feature Engineering.
+[ 2025-08-12 13:33:26,816 ] 81 root - INFO - Feature Engineering selesai.
+[ 2025-08-12 13:33:26,816 ] 51 root - INFO - Kolom numerik: ['age', 'balance', 'day', 'campaign', 'pdays', 'previous']
+[ 2025-08-12 13:33:26,816 ] 52 root - INFO - Kolom kategorikal: ['job', 'marital', 'education', 'default', 'housing', 'loan', 'contact', 'month', 'poutcome']
+[ 2025-08-12 13:33:26,824 ] 94 root - INFO - Menerapkan objek preprocessor pada data training dan testing.
+[ 2025-08-12 13:33:27,054 ] 98 root - INFO - Menerapkan SMOTETomek untuk menyeimbangkan HANYA data training.
+[ 2025-08-12 13:33:36,445 ] 41 root - INFO - Enter the save_object method of mainutils class
+[ 2025-08-12 13:33:36,469 ] 46 root - INFO - Exited the save_object method of main utils class
+[ 2025-08-12 13:33:36,494 ] 117 root - INFO - Menyimpan objek preprocessor dan data yang sudah ditransformasi.
+[ 2025-08-12 13:33:36,494 ] 124 root - INFO - Data transformation artifact: DataTransformationArtifact(transformed_object_file_path='Artifacts\\08_12_2025_13_13_59\\data_transformation\\transformed_object\\preprocessor.pkl', transformed_train_file_path='Artifacts\\08_12_2025_13_13_59\\data_transformation\\transformed_data\\train.npy', transformed_test_file_path='Artifacts\\08_12_2025_13_13_59\\data_transformation\\transformed_data\\test.npy')
+[ 2025-08-12 13:33:36,503 ] 77 root - INFO - >>> Tahap Data Transformation Selesai <<<
+[ 2025-08-12 13:33:36,503 ] 29 root - INFO - Memulai komponen Model Trainer.
+[ 2025-08-12 13:33:36,552 ] 69 root - INFO - Memulai hyperparameter tuning untuk Random Forest...
+[ 2025-08-12 13:38:18,908 ] 69 root - INFO - Memulai hyperparameter tuning untuk XGBoost...
+[ 2025-08-12 13:40:23,261 ] 69 root - INFO - Memulai hyperparameter tuning untuk Logistic Regression...
+[ 2025-08-12 13:40:53,331 ] 90 root - INFO - Model terbaik setelah tuning: Random Forest dengan F1 Score: 0.4441

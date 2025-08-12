@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 import sys
 from bankmarketing.constant import training_pipeline
-
+from dataclasses import dataclass
 
 print(training_pipeline.PIPELINE__NAME)
 print(training_pipeline.ARTIFACT_DIR)
@@ -116,3 +116,26 @@ class DataTransformationConfig:
 
         except Exception as e:
             raise BankMarketingException(e, sys)
+        
+class ModelTrainerConfig:
+    def __init__(self, training_pipeline_config: TrainingPipelineConfig):
+        try:
+            self.trained_model_file_path: str = os.path.join(
+                training_pipeline_config.artifact_dir,
+                training_pipeline.MODEL_TRAINER_DIR_NAME,
+                training_pipeline.MODEL_TRAINER_TRAINED_MODEL_DIR,
+                training_pipeline.MODEL_FILE_NAME
+            )
+            self.base_accuracy: float = training_pipeline.MODEL_TRAINER_EXPECTED_SCORE
+            self.overfitting_underfitting_threshold: float = training_pipeline.MODEL_TRAINER_OVER_FITTING_UNDER_FITTING_THRESHOLD
+        except Exception as e:
+            raise BankMarketingException(e, sys)
+        
+@dataclass
+class ModelEvaluationConfig:
+    model_evaluation_file_path: str = os.path.join(
+        training_pipeline.ARTIFACT_DIR,
+        training_pipeline.MODEL_EVALUATION_DIR_NAME,
+        training_pipeline.MODEL_EVALUATION_REPORT_NAME
+    )
+    time_stamp: str = datetime.now().strftime("%m_%d_%Y_%H_%M_%S")

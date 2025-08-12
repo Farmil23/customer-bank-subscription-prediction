@@ -1,125 +1,182 @@
 import os
 import sys
-import pandas as pd
-import numpy as np
 
-# Import semua model dan metrik yang dibutuhkan
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
-from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
-
-from bankmarketing.exception.exception import BankMarketingException
+from bankmarketing.exception.exception import BankMarketingException 
 from bankmarketing.logging.logger import logging
+
+from bankmarketing.entity.artifact_entity import DataTransformationArtifact,ModelTrainerArtifact
 from bankmarketing.entity.config_entity import ModelTrainerConfig
-from bankmarketing.entity.artifact_entity import DataTransformationArtifact, ModelTrainerArtifact
-from bankmarketing.utils.main_utils.utils import load_numpy_array_data, save_object
+
+
+
+from bankmarketing.utils.ml_utils.model.estimator import NetworkModel
+from bankmarketing.utils.main_utils.utils import save_object,load_object
+from bankmarketing.utils.main_utils.utils import load_numpy_array_data,evaluate_models
+from bankmarketing.utils.ml_utils.metric.classification_metric import get_classification_score
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import r2_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import (
+    AdaBoostClassifier,
+    GradientBoostingClassifier,
+    RandomForestClassifier,
+)
+import mlflow
+from urllib.parse import urlparse
+
+import dagshub
+#dagshub.init(repo_owner='krishnaik06', repo_name='bankmarketing', mlflow=True)
+
+os.environ["MLFLOW_TRACKING_URI"]="https://dagshub.com/krishnaik06/bankmarketing.mlflow"
+os.environ["MLFLOW_TRACKING_USERNAME"]="krishnaik06"
+os.environ["MLFLOW_TRACKING_PASSWORD"]="7104284f1bb44ece21e0e2adb4e36a250ae3251f"
+
 
 class ModelTrainer:
-    def __init__(self, data_transformation_artifact: DataTransformationArtifact,
-                 model_trainer_config: ModelTrainerConfig):
+    def __init__(self,model_trainer_config:ModelTrainerConfig,data_transformation_artifact:DataTransformationArtifact):
         try:
-            self.data_transformation_artifact = data_transformation_artifact
-            self.model_trainer_config = model_trainer_config
+            self.model_trainer_config=model_trainer_config
+            self.data_transformation_artifact=data_transformation_artifact
         except Exception as e:
-            raise BankMarketingException(e, sys)
-
-    def evaluate_models(self, X_train, y_train, X_test, y_test, models):
+            raise BankMarketingException(e,sys)
+        
+    
         """
-        Melatih dan mengevaluasi semua model yang diberikan, lalu mengembalikan laporan performa.
-        """
-        try:
-            report = {}
-            for model_name, model in models.items():
-                logging.info(f"--- Melatih Model: {model_name} ---")
-                model.fit(X_train, y_train) # Melatih model
+    def track_mlflow(self,best_model,classificationmetric):
+            mlflow.set_registry_uri("https://dagshub.com/krishnaik06/bankmarketing.mlflow")
+        tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
+        with mlflow.start_run():
+            f1_score=classificationmetric.f1_score
+            precision_score=classificationmetric.precision_score
+            recall_score=classificationmetric.recall_score
 
-                # Prediksi pada data training dan testing
-                y_train_pred = model.predict(X_train)
-                y_test_pred = model.predict(X_test)
-
-                # Menghitung metrik F1 Score untuk training dan testing
-                train_model_score = f1_score(y_train, y_train_pred)
-                test_model_score = f1_score(y_test, y_test_pred)
-
-                # Menyimpan F1 score testing ke dalam laporan
-                report[model_name] = test_model_score
-
-                # Mencetak laporan lengkap seperti di notebook-mu
-                logging.info(f"Laporan Performa untuk: {model_name}")
-                logging.info(f"  Training F1 Score: {train_model_score:.4f}")
-                logging.info(f"  Testing F1 Score: {test_model_score:.4f}")
-                logging.info(f"  Testing Accuracy: {accuracy_score(y_test, y_test_pred):.4f}")
-                logging.info(f"  Testing Precision: {precision_score(y_test, y_test_pred):.4f}")
-                logging.info(f"  Testing Recall: {recall_score(y_test, y_test_pred):.4f}")
-                logging.info("-" * 40)
             
-            return report
 
-        except Exception as e:
-            raise BankMarketingException(e, sys)
+            mlflow.log_metric("f1_score",f1_score)
+            mlflow.log_metric("precision",precision_score)
+            mlflow.log_metric("recall_score",recall_score)
+            mlflow.sklearn.log_model(best_model,"model")
+            # Model registry does not work with file store
+            if tracking_url_type_store != "file":
 
-    def initiate_model_trainer(self) -> ModelTrainerArtifact:
+                # Register the model
+                # There are other ways to use the Model Registry, which depends on the use case,
+                # please refer to the doc for more information:
+                # https://mlflow.org/docs/latest/model-registry.html#api-workflow
+                mlflow.sklearn.log_model(best_model, "model", registered_model_name=best_model)
+            else:
+                mlflow.sklearn.log_model(best_model, "model")
+        """
+
+        
+    def train_model(self,X_train,y_train,x_test,y_test):
+        models = {
+                "Random Forest": RandomForestClassifier(verbose=1),
+                "Decision Tree": DecisionTreeClassifier(),
+                "Gradient Boosting": GradientBoostingClassifier(verbose=1),
+                "Logistic Regression": LogisticRegression(verbose=1),
+                "AdaBoost": AdaBoostClassifier(),
+            }
+        params={
+            "Decision Tree": {
+                'criterion':['gini', 'entropy', 'log_loss'],
+                # 'splitter':['best','random'],
+                # 'max_features':['sqrt','log2'],
+            },
+            "Random Forest":{
+                # 'criterion':['gini', 'entropy', 'log_loss'],
+                
+                # 'max_features':['sqrt','log2',None],
+                'n_estimators': [8,16,32,128,256]
+            },
+            "Gradient Boosting":{
+                # 'loss':['log_loss', 'exponential'],
+                'learning_rate':[.1,.01,.05,.001],
+                'subsample':[0.6,0.7,0.75,0.85,0.9],
+                # 'criterion':['squared_error', 'friedman_mse'],
+                # 'max_features':['auto','sqrt','log2'],
+                'n_estimators': [8,16,32,64,128,256]
+            },
+            "Logistic Regression":{},
+            "AdaBoost":{
+                'learning_rate':[.1,.01,.001],
+                'n_estimators': [8,16,32,64,128,256]
+            }
+            
+        }
+        model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=x_test,y_test=y_test,
+                                          models=models,param=params)
+        
+        ## To get best model score from dict
+        best_model_score = max(sorted(model_report.values()))
+
+        ## To get best model name from dict
+
+        best_model_name = list(model_report.keys())[
+            list(model_report.values()).index(best_model_score)
+        ]
+        best_model = models[best_model_name]
+        y_train_pred=best_model.predict(X_train)
+
+        classification_train_metric=get_classification_score(y_true=y_train,y_pred=y_train_pred)
+        
+        ## Track the experiements with mlflow
+        self.track_mlflow(best_model,classification_train_metric)
+
+
+        y_test_pred=best_model.predict(x_test)
+        classification_test_metric=get_classification_score(y_true=y_test,y_pred=y_test_pred)
+
+        self.track_mlflow(best_model,classification_test_metric)
+
+        preprocessor = load_object(file_path=self.data_transformation_artifact.transformed_object_file_path)
+            
+        model_dir_path = os.path.dirname(self.model_trainer_config.trained_model_file_path)
+        os.makedirs(model_dir_path,exist_ok=True)
+
+        Network_Model=NetworkModel(preprocessor=preprocessor,model=best_model)
+        save_object(self.model_trainer_config.trained_model_file_path,obj=NetworkModel)
+        #model pusher
+        save_object("final_model/model.pkl",best_model)
+        
+
+        ## Model Trainer Artifact
+        model_trainer_artifact=ModelTrainerArtifact(trained_model_file_path=self.model_trainer_config.trained_model_file_path,
+                             train_metric_artifact=classification_train_metric,
+                             test_metric_artifact=classification_test_metric
+                             )
+        logging.info(f"Model trainer artifact: {model_trainer_artifact}")
+        return model_trainer_artifact
+
+
+        
+
+
+       
+    
+    
+        
+    def initiate_model_trainer(self)->ModelTrainerArtifact:
         try:
-            logging.info("Memulai komponen Model Trainer.")
-            train_arr = load_numpy_array_data(self.data_transformation_artifact.transformed_train_file_path)
-            test_arr = load_numpy_array_data(self.data_transformation_artifact.transformed_test_file_path)
+            train_file_path = self.data_transformation_artifact.transformed_train_file_path
+            test_file_path = self.data_transformation_artifact.transformed_test_file_path
 
-            X_train, y_train, X_test, y_test = (
+            #loading training array and testing array
+            train_arr = load_numpy_array_data(train_file_path)
+            test_arr = load_numpy_array_data(test_file_path)
+
+            x_train, y_train, x_test, y_test = (
                 train_arr[:, :-1],
                 train_arr[:, -1],
                 test_arr[:, :-1],
                 test_arr[:, -1],
             )
 
-            # Daftar model klasifikasi yang akan dievaluasi
-            models = {
-                "Logistic Regression": LogisticRegression(max_iter=1000),
-                "Decision Tree": DecisionTreeClassifier(),
-                "Random Forest": RandomForestClassifier(),
-                "Gradient Boost": GradientBoostingClassifier(),
-                "Adaboost": AdaBoostClassifier(),
-                "Xgboost": XGBClassifier()
-            }
-            
-            # Memulai evaluasi model
-            model_report: dict = self.evaluate_models(
-                X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test,
-                models=models
-            )
-            
-            # Mendapatkan model terbaik berdasarkan F1 score tertinggi
-            best_model_score = max(sorted(model_report.values()))
-            best_model_name = list(model_report.keys())[
-                list(model_report.values()).index(best_model_score)
-            ]
-            best_model = models[best_model_name]
-
-            logging.info(f"Model terbaik ditemukan: {best_model_name} dengan F1 Score Test: {best_model_score:.4f}")
-
-            # Mengecek apakah model terbaik memenuhi skor minimum
-            if best_model_score < self.model_trainer_config.base_accuracy:
-                raise Exception(f"Tidak ada model yang cukup baik. Skor terbaik: {best_model_score:.4f}")
-
-            logging.info("Model terbaik lulus pengecekan performa minimum.")
-            
-            # Menyimpan model terbaik
-            save_object(self.model_trainer_config.trained_model_file_path, best_model)
-            logging.info(f"Model terbaik berhasil disimpan di: {self.model_trainer_config.trained_model_file_path}")
-
-            # Membuat artifact
-            # Menghitung F1 score training dari model terbaik untuk laporan
-            best_model.fit(X_train, y_train) # Latih ulang model terbaik dengan data lengkap
-            y_train_pred_best = best_model.predict(X_train)
-            train_f1_best = f1_score(y_train, y_train_pred_best)
-
-            model_trainer_artifact = ModelTrainerArtifact(
-                trained_model_file_path=self.model_trainer_config.trained_model_file_path,
-                train_metric_artifact=train_f1_best,
-                test_metric_artifact=best_model_score
-            )
+            model_trainer_artifact=self.train_model(x_train,y_train,x_test,y_test)
             return model_trainer_artifact
 
+            
         except Exception as e:
-            raise BankMarketingException(e, sys)
+             raise BankMarketingException(e,sys)

@@ -1,0 +1,18 @@
+age:
+  drift_status: false
+  p_value: 0.3178660050691411
+balance:
+  drift_status: false
+  p_value: 0.3924867168522398
+campaign:
+  drift_status: false
+  p_value: 0.9976666477431564
+day:
+  drift_status: false
+  p_value: 0.7754686280334196
+pdays:
+  drift_status: false
+  p_value: 0.9999999999814226
+previous:
+  drift_status: false
+  p_value: 0.9999997767206048
