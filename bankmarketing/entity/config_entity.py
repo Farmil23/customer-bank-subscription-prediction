@@ -83,3 +83,36 @@ class DataValidationConfig:
 
         except Exception as e:
             raise BankMarketingException(e, sys)
+        
+class DataTransformationConfig:
+    def __init__(self, training_pipeline_config: TrainingPipelineConfig):
+        try:
+            # Direktori utama untuk semua output dari tahap transformasi
+            self.data_transformation_dir: str = os.path.join(
+                training_pipeline_config.artifact_dir, 
+                training_pipeline.DATA_TRANSFORMATION_DIR_NAME
+            )
+
+            # Path lengkap untuk menyimpan objek preprocessor (misal: preprocessor.pkl)
+            self.transformed_object_file_path: str = os.path.join(
+                self.data_transformation_dir,
+                training_pipeline.DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR,
+                training_pipeline.PREPROCESSING_OBJECT_FILE_NAME
+            )
+
+            # Path lengkap untuk menyimpan data training yang sudah ditransformasi dan diseimbangkan
+            self.transformed_train_file_path: str = os.path.join(
+                self.data_transformation_dir,
+                training_pipeline.DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR,
+                training_pipeline.TRAIN_FILE_NAME.replace("csv", "npy") 
+            )
+
+            # Path lengkap untuk menyimpan data testing yang sudah ditransformasi
+            self.transformed_test_file_path: str = os.path.join(
+                self.data_transformation_dir,
+                training_pipeline.DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR,
+                training_pipeline.TEST_FILE_NAME.replace("csv", "npy")
+            )
+
+        except Exception as e:
+            raise BankMarketingException(e, sys)
